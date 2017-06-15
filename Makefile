@@ -6,11 +6,14 @@ BUILD_TIME=$(shell date +'%Y-%m-%d %H:%M')
 
 LDFLAGS=-ldflags '-X "main.gitTag=${GIT_TAG}" -X "main.buildTime=${BUILD_TIME}"'
 
-build:
+build: pb
 	dep ensure
-	go build ${LDFLAGS} -o ${DIST}${BINARY} main.go
+	go build ${LDFLAGS} -o ${DIST}${BINARY} afanty.go
 
-test:
+pb:
+	$(MAKE) -C pb
+
+test: pb
 	go test $(go list ./... | grep -v /vendor/)
 
 run: build
@@ -19,3 +22,5 @@ run: build
 pack: build
 	tar -cf ${BINARY}.tar dist
 	rm -rf dist
+
+.PHONY: pb build clean

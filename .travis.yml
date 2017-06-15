@@ -3,8 +3,7 @@ go:
 - 1.8
 - tip
 env:
-- GIMME_OS=linux GIMME_ARCH=amd64
-- ENV="dev"
+- GIMME_OS=linux GIMME_ARCH=amd64 ENV="dev"
 install:
 - go get -u github.com/golang/dep/cmd/dep
 - dep ensure
