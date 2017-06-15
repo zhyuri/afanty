@@ -1,10 +1,10 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"net/http"
-	"context"
 )
 
 var srv *http.Server
