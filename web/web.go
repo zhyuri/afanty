@@ -1,20 +1,19 @@
 package web
 
 import (
-	"context"
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"net/http"
+	"context"
 )
 
 var srv *http.Server
 
-func Run() {
+func Run(addr string) {
 	http.HandleFunc("/", handle)
 	http.HandleFunc("/_ah/health", healthCheckHandler)
-	logrus.Print("Listening on port 8080")
 	srv = &http.Server{
-		Addr:    ":8080",
+		Addr:    addr,
 		Handler: nil,
 	}
 	logrus.Fatal(srv.ListenAndServe())
