@@ -1,0 +1,28 @@
+language: go
+go:
+- 1.8
+- tip
+env:
+- GIMME_OS=linux GIMME_ARCH=amd64
+- ENV="dev"
+install:
+- go get -u github.com/golang/dep/cmd/dep
+- dep ensure
+script: make test
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+  slack:
+    secure: ZMxB/fxWHdBOM4URNDAYxbAsbrYQT5ovsub36ZrrZOPJ/+FdY8tf0HA8Z01em0kkEyRR5wI0NpDqFYHjg1B5LeiLsjLaQfLzNewuEjBhMZNGkyh36DEwr5tj3bnO5lWR0hakasfTeGsQE77UofGsEheKrPQ9gLEtRmCARMFeZrNJjRC+NrPxVzwTm66XH6pwyR8/bLTIovxXKbQqNZq7wNSRA56BLRbEGsa0dTp69nnypioXB+JHLHF8qU+VngmJm5LPFS6srl8THeB4mIaFApJzYpf4q64uXNJ1zJp9TFAdTVnG93mZaqBOdZzzkFJs31P5Bjc7GrE5BS1QxD5+nwZKe5eqa3geSdOXEz2DsXmHrDZd5vwKcN3LCmV9VYvUj12w96opQ8UfQ7NpfljqOW6AKYVEP6jZ634gV7dnCUoKvJwRMl22Y2MdTyhnACrLcuuCuTZJ+WXIhivrSKnn7bvYEiP7sm81EUjZBl9u9tFn4M8mAY9fe5z90G+s0VTGgD+VwoOqDcLbofHQO8X3GMfOKeK7LtXTn91vkSZmAPBjih4rBTIzHc8pzQL1IBPgzH8Ur8EtOhgi21idR97dnLiuQf6HrZxcUO/O44owuPZKdpdZdzUYetjCcOwPicwvnNWoit0t08rvpJ7lwRJ6SfkaXP2YLznFuoWTmccdqWE=
+matrix:
+  allow_failures:
+  - go: tip
+deploy:
+  provider: gae
+  keyfile: service-account.json
+  project: afanty-170802
+before_install:
+- openssl aes-256-cbc -K $encrypted_3cafb6aa6063_key -iv $encrypted_3cafb6aa6063_iv
+  -in afanty-key.json.enc -out service-account.json -d
+
