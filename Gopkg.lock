@@ -10,7 +10,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
-  packages = ["proto","ptypes/any"]
+  packages = ["proto"]
   revision = "e325f446bebc2998605911c0a2650d9920361d4a"
 
 [[projects]]
@@ -22,6 +22,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "90ada7fcf49033798c21f3853e421f6894ccc7be7d1d8ace06194e9112cd88db"
+  inputs-digest = "88c50107b2c4c8dfabf5461c0348f52dda4d53f86abbc097a743f7fad36efe32"
   solver-name = "gps-cdcl"
   solver-version = 1
