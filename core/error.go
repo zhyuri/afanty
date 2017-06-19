@@ -1,14 +1,5 @@
 package core
 
-type StateEndError struct {
-	Err       error
-	isSuccess bool
-}
-
-type StateExecuteError struct {
-	Err error
-}
-
 type Retry struct {
 	ErrorEquals     []string `json:"errorEquals,omitempty"`
 	IntervalSeconds int32    `json:"intervalSeconds,omitempty"`

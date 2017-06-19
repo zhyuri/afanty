@@ -11,7 +11,7 @@ build: pb
 	go build ${LDFLAGS} -o ${DIST}${BINARY} afanty.go
 
 pb:
-	$(MAKE) -C pb
+	$(MAKE) -C api
 
 test: pb
 	go test $(go list ./... | grep -v /vendor/)

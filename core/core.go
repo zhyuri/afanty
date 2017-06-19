@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"github.com/Sirupsen/logrus"
+	"github.com/iris-contrib/errors"
 	"time"
 )
 
@@ -18,17 +19,48 @@ func init() {
 	logrus.Infoln("init Afanty core")
 }
 
-func Execute(sm StateMachine) error {
+func NewStateMachine() StateMachine {
+	return StateMachine{
+		Version:        "1.0",
+		Comment:        "Default StateMachine Comment",
+		TimeoutSeconds: 10,
+	}
+}
+
+func (sm StateMachine) Execute() error {
 	logrus.Infoln("start execute sm: ", sm.Comment)
 
-	ctx, _ := context.WithTimeout(context.Background(),
+	mCtx, _ := context.WithTimeout(context.Background(),
 		time.Second*time.Duration(sm.TimeoutSeconds))
+
+	var (
+		baseState BaseState
+		//state     State
+		exist  bool
+		isDone chan bool
+	)
+	if baseState, exist = sm.States[sm.StartAt]; !exist {
+		logrus.Warnln()
+		return errors.New("cann't find state " + sm.StartAt)
+	}
+	logrus.Debug(baseState)
+
+	isDone = make(chan bool, 1)
+
+	//go func(state State, isDone chan bool) {
+	//	for s := state; ; {
+	//
+	//	}
+	//
+	//}(state, isDone)
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-isDone:
+			break
+		case <-mCtx.Done():
 			logrus.Warningln("sm execute timeout: ", sm.Comment)
-			return ctx.Err()
+			return mCtx.Err()
 		}
 	}
 
