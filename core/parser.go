@@ -39,9 +39,8 @@ func BuildState(data []byte) (interface{}, error) {
 	if t, err = ParseStateType(data); err != nil {
 		return nil, err
 	}
-	ret := reflect.New(t).Elem().Interface()
+	ret := reflect.New(t).Interface()
 	err = json.Unmarshal(data, &ret)
-	logrus.Error(reflect.TypeOf(PassState{}).Name())
 	return ret, err
 }
 

@@ -1,7 +1,6 @@
 package core
 
 import (
-	"encoding/json"
 	"reflect"
 	"testing"
 )
@@ -9,7 +8,6 @@ import (
 var (
 	passState = []byte(`{
   "Type": "Pass",
-  "Result": "",
   "ResultPath": "$.coords",
   "Next": "End"
 }`)
@@ -26,18 +24,17 @@ func TestBuildState(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "",
+			name: "Build PassState from Json",
 			args: args{
 				data: passState,
 			},
-			want: PassState{
+			want: &PassState{
 				State: State{
 					BaseState: BaseState{
 						Type: NamePassState,
 					},
 					Next: "End",
 				},
-				Result:     &json.RawMessage{},
 				ResultPath: "$.coords",
 			},
 			wantErr: false,
