@@ -5,6 +5,9 @@ go:
 env:
 - GIMME_OS=linux GIMME_ARCH=amd64 ENV="dev"
 install:
+- wget https://github.com/google/protobuf/archive/v3.3.0.tar.gz
+- tar -xzvf v3.3.0.tar.gz
+- pushd protobuf-3.3.0 && ./configure --prefix=/usr && make && sudo make install && popd
 - dep ensure
 script: make test
 notifications:
