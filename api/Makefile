@@ -8,4 +8,4 @@ ifdef PROTOC
 endif
 
 clean:
-	rm *.pb.go
+	-@rm -rf *.pb.go 2>/dev/null || true

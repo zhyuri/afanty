@@ -6,21 +6,27 @@ BUILD_TIME=$(shell date +'%Y-%m-%d %H:%M')
 
 LDFLAGS=-ldflags '-X "main.gitTag=${GIT_TAG}" -X "main.buildTime=${BUILD_TIME}"'
 
-build: pb
+build: clean pb
 	dep ensure
 	go build ${LDFLAGS} -o ${DIST}${BINARY} afanty.go
 
 pb:
 	$(MAKE) -C api
 
-test: pb
-	go test $(go list ./... | grep -v /vendor/)
+test:
+	go test `go list ./... | grep -v /vendor/ | grep -v /api`
 
-run: build
+doc:
+	godoc -http=:6060 -index
+
+run:
 	${DIST}${BINARY}
 
 pack: build
 	tar -cf ${BINARY}.tar dist
 	rm -rf dist
+
+clean:
+	$(MAKE) clean -C api
 
 .PHONY: pb build clean
