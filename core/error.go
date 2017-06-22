@@ -1,15 +1,15 @@
 package core
 
 type Retry struct {
-	ErrorEquals     []string `json:"errorEquals,omitempty"`
-	IntervalSeconds int32    `json:"intervalSeconds,omitempty"`
-	MaxAttempts     int32    `json:"maxAttempts,omitempty"`
+	ErrorEquals     []string
+	IntervalSeconds int32
+	MaxAttempts     int32
 	// A number that is the multiplier by which the retry interval increases on each attempt (default 2.0).
-	BackoffRate float32 `json:"backoffRate,omitempty"`
+	BackoffRate float32
 }
 
 type Catcher struct {
-	ErrorEquals []string `json:"errorEquals,omitempty"`
-	Next        string   `json:"next,omitempty"`
-	ResultPath  string   `json:"resultPath,omitempty"`
+	ErrorEquals []string
+	Next        string
+	ResultPath  string
 }

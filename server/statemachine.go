@@ -1,8 +1,8 @@
 package server
 
 import (
-	"golang.org/x/net/context"
 	"github.com/zhyuri/afanty/api"
+	"golang.org/x/net/context"
 )
 
 type stateMachineServer struct {
