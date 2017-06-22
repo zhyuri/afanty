@@ -16,11 +16,13 @@ func Run(addr string) {
 		Addr:    addr,
 		Handler: nil,
 	}
+	logrus.Infoln("HTTP Listening on port ", addr)
 	logrus.Fatal(srv.ListenAndServe())
 }
 
 func Shutdown(ctx context.Context) {
 	srv.Shutdown(ctx)
+	logrus.Infoln("HTTP shut down")
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {

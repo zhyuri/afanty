@@ -13,7 +13,7 @@ build: clean pb
 pb:
 	$(MAKE) -C api
 
-test:
+test: pb
 	go test `go list ./... | grep -v /vendor/ | grep -v /api`
 
 doc:

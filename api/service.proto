@@ -1,3 +1,16 @@
 syntax = "proto3";
-package afanty;
+package api;
 
+service StateMachine {
+    rpc Run (MInput) returns (MOutput);
+}
+
+message MInput {
+    int64 id = 1;
+    string input = 2;
+}
+
+message MOutput {
+    int64 id = 1;
+    string output = 2;
+}

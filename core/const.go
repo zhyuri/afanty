@@ -57,7 +57,7 @@ type WaitState struct {
 
 type Branches struct {
 	StartAt string
-	States  map[string]BaseState
+	States  map[string]*json.RawMessage
 }
 
 type ParallelState struct {
