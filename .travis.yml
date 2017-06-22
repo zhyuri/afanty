@@ -3,10 +3,10 @@ go:
 - 1.8
 - tip
 env:
-- GIMME_OS=linux GIMME_ARCH=amd64 ENV="dev"
+- PATH=$PATH:$HOME/protobuf/bin GIMME_OS=linux GIMME_ARCH=amd64 ENV="dev"
 install:
 - wget https://github.com/google/protobuf/releases/download/v3.3.0/protoc-3.3.0-linux-x86_64.zip
-- unzip protoc-3.3.0-linux-x86_64.zip -d /usr/local
+- unzip protoc-3.3.0-linux-x86_64.zip -d $HOME/protobuf
 - dep ensure
 script: make test
 notifications:
