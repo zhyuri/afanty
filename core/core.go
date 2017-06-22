@@ -2,8 +2,8 @@ package core
 
 import (
 	"context"
+	"errors"
 	"github.com/Sirupsen/logrus"
-	"github.com/iris-contrib/errors"
 	"time"
 )
 

@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "e325f446bebc2998605911c0a2650d9920361d4a"
+  revision = "1fb8fd32a09087bcd727225167edd31e1b9ceb24"
 
 [[projects]]
   branch = "master"
