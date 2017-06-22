@@ -35,6 +35,8 @@ func TestBuildState(t *testing.T) {
 					},
 					Next: "End",
 				},
+				// cannot test Result field here, because it has different memory address
+				// and cannot pass the reflect.DeepEqual
 				ResultPath: "$.coords",
 			},
 			wantErr: false,
@@ -46,6 +48,10 @@ func TestBuildState(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BuildState(%v) error = %v, wantErr %v", string(tt.args.data), err, tt.wantErr)
 				return
+			}
+			// Be ware you need to use the pointer type !
+			if _, ok := got.(*PassState); !ok {
+				t.Errorf("BuildState type not match, want PassState.")
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("BuildState(%v) = %v, want %v", string(tt.args.data), got, tt.want)
