@@ -16,11 +16,11 @@ notifications:
 matrix:
   allow_failures:
   - go: tip
-deploy:
-  provider: gae
-  keyfile: service-account.json
-  project: afanty-170802
+#deploy:
+#  provider: gae
+#  keyfile: service-account.json
+#  project: afanty-170802
 before_install:
-- openssl aes-256-cbc -K $encrypted_3cafb6aa6063_key -iv $encrypted_3cafb6aa6063_iv
-  -in afanty-key.json.enc -out service-account.json -d
+#- openssl aes-256-cbc -K $encrypted_3cafb6aa6063_key -iv $encrypted_3cafb6aa6063_iv
+#  -in afanty-key.json.enc -out service-account.json -d
 - go get github.com/golang/dep/...
