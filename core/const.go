@@ -1,9 +1,41 @@
 package core
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"reflect"
+)
+
+const (
+	NamePassState     = "Pass"
+	NameTaskState     = "Task"
+	NameChoiceState   = "Choice"
+	NameWaitState     = "Wait"
+	NameParallelState = "Parallel"
+	NameSucceedState  = "Succeed"
+	NameFailState     = "Fail"
+)
+
+var (
+	stateType = make(map[string]reflect.Type)
+)
+
+func init() {
+	stateType[NamePassState] = reflect.TypeOf(PassState{})
+	stateType[NameTaskState] = reflect.TypeOf(TaskState{})
+	stateType[NameChoiceState] = reflect.TypeOf(ChoiceState{})
+	stateType[NameWaitState] = reflect.TypeOf(WaitState{})
+	stateType[NameParallelState] = reflect.TypeOf(ParallelState{})
+	stateType[NameSucceedState] = reflect.TypeOf(SucceedState{})
+	stateType[NameFailState] = reflect.TypeOf(FailState{})
+}
+
+type RunnableState interface {
+	Call(data *json.RawMessage) *json.RawMessage
+}
 
 type BaseState struct {
 	Type string
+	Data *json.RawMessage
 }
 
 type State struct {
@@ -70,13 +102,11 @@ type ParallelState struct {
 
 type SucceedState struct {
 	BaseState
-	Type    string
 	Comment string
 }
 
 type FailState struct {
 	BaseState
-	Type    string
 	Comment string
 	Cause   string
 	Error   string

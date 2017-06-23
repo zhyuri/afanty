@@ -7,36 +7,9 @@ import (
 	"reflect"
 )
 
-const (
-	NamePassState     = "Pass"
-	NameTaskState     = "Task"
-	NameChoiceState   = "Choice"
-	NameWaitState     = "Wait"
-	NameParallelState = "Parallel"
-	NameSucceedState  = "Succeed"
-	NameFailState     = "Fail"
-)
-
-var (
-	stateType = make(map[string]reflect.Type)
-)
-
-func init() {
-	stateType[NamePassState] = reflect.TypeOf(PassState{})
-	stateType[NameTaskState] = reflect.TypeOf(TaskState{})
-	stateType[NameChoiceState] = reflect.TypeOf(ChoiceState{})
-	stateType[NameWaitState] = reflect.TypeOf(WaitState{})
-	stateType[NameParallelState] = reflect.TypeOf(ParallelState{})
-	stateType[NameSucceedState] = reflect.TypeOf(SucceedState{})
-	stateType[NameFailState] = reflect.TypeOf(FailState{})
-}
-
 func BuildState(data []byte) (interface{}, error) {
-	var (
-		t   reflect.Type
-		err error
-	)
-	if t, err = ParseStateType(data); err != nil {
+	t, err := ParseStateType(data)
+	if err != nil {
 		return nil, err
 	}
 	ret := reflect.New(t).Interface()
