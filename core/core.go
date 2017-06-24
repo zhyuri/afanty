@@ -35,14 +35,15 @@ func NewStateMachineFromJSON(j []byte) (StateMachine, error) {
 	return sm, nil
 }
 
-func (sm *StateMachine) Execute() error {
+func (sm *StateMachine) Execute(data *json.RawMessage) error {
 	logrus.WithField("name", sm.Comment).Infoln("execute sm start")
+	defer logrus.WithField("name", sm.Comment).Infoln("execute sm end")
 
-	ctx, cancel := context.WithTimeout(context.Background(),
+	ctx, done := context.WithTimeout(context.Background(),
 		time.Second*time.Duration(sm.TimeoutSeconds))
 
 	errChan := make(chan error)
-	go func(sm *StateMachine, done context.CancelFunc) {
+	go func() {
 		defer done()
 
 		var s State
@@ -54,7 +55,7 @@ func (sm *StateMachine) Execute() error {
 				err = errors.New("can not find state " + name)
 				break
 			}
-			s, err = ExecuteStateJSON(stateJSON)
+			s, err = ExecuteStateJSON(*stateJSON, data)
 			if err != nil || s.End {
 				break
 			}
@@ -63,36 +64,40 @@ func (sm *StateMachine) Execute() error {
 		if err != nil {
 			errChan <- err
 		}
-	}(sm, cancel)
+	}()
 
 	select {
 	case e := <-errChan:
-		logrus.Errorln("StateMachine execute State error", e)
+		logrus.Errorln("StateMachine execute State error,", e)
+		return e
 	case <-ctx.Done():
 		if e := ctx.Err(); e != context.Canceled {
 			logrus.Warningln("sm execute timeout: ", sm.Comment)
 		}
 	}
 
-	logrus.WithField("name", sm.Comment).Infoln("execute sm end")
 	return nil
 }
 
-func ExecuteStateJSON(stateJSON *json.RawMessage) (State, error) {
+func ExecuteStateJSON(stateJSON json.RawMessage, data *json.RawMessage) (State, error) {
 	if stateJSON == nil {
 		return State{}, errors.New("input state json is nil")
 	}
-	stateInterface, err := BuildState(*stateJSON)
+	state, err := BuildState(stateJSON)
 	if err != nil {
 		return State{}, err
 	}
-	switch s := stateInterface.(type) {
-	case *PassState:
-		logrus.Infof("%#v", s)
-		return s.State, nil
+	switch s := state.(type) {
 	case *TaskState:
 		logrus.Infof("%#v", s)
+		s.Call(data)
 		return s.State, nil
+	case *SucceedState:
+		logrus.Infof("%#v", s)
+		return State{}, nil
+	case *FailState:
+		logrus.Infof("%#v", s)
+		return State{}, nil
 	default:
 		logrus.WithField("state", s).Error("the logic of state has not been implement")
 		return State{}, errors.New("the invoke logic of state has not been implement")

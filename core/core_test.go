@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -34,7 +35,7 @@ func TestExecute(t *testing.T) {
 	if err != nil {
 		t.Errorf("NewStateMachineFromJSON return err, %#v", err)
 	}
-	if err = sm.Execute(); err != nil {
+	if err = sm.Execute(&json.RawMessage{}); err != nil {
 		t.Errorf("Execute return err, %#v", err)
 	}
 }

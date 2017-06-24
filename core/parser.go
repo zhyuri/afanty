@@ -14,6 +14,10 @@ func BuildState(data []byte) (interface{}, error) {
 	}
 	ret := reflect.New(t).Interface()
 	err = json.Unmarshal(data, &ret)
+	if err != nil {
+		logrus.WithField("err", err).Errorln("json unmarshal failed")
+		return nil, err
+	}
 	return ret, err
 }
 
@@ -27,27 +31,21 @@ func ParseStateType(data []byte) (reflect.Type, error) {
 		err      error
 	)
 	err = json.Unmarshal(data, &stateMap)
+	logEntry := logrus.WithFields(logrus.Fields{
+		"json":     data,
+		"stateMap": stateMap,
+	})
 	if msg, ok = stateMap["Type"]; !ok {
-		logrus.WithFields(logrus.Fields{
-			"json":     data,
-			"stateMap": stateMap,
-		}).Errorln("cannot find type field from json")
+		logEntry.Errorln("cannot find type field from json")
 		return nil, err
 	}
 	err = json.Unmarshal(*msg, &typeStr)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"json":     data,
-			"stateMap": stateMap,
-			"err":      err,
-		}).Errorln("cannot unmarshal state from json")
+		logEntry.WithField("err", err).Errorln("cannot unmarshal state from json")
 		return nil, err
 	}
 	if t, ok = stateType[typeStr]; !ok {
-		logrus.WithFields(logrus.Fields{
-			"stateMap": stateMap,
-			"typeStr":  typeStr,
-		}).Errorln("unknown state type")
+		logEntry.WithField("typeStr", typeStr).Errorln("unknown state type")
 		return nil, errors.New("unknown state type")
 	}
 	return t, nil

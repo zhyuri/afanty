@@ -29,13 +29,8 @@ func init() {
 	stateType[NameFailState] = reflect.TypeOf(FailState{})
 }
 
-type RunnableState interface {
-	Call(data *json.RawMessage) *json.RawMessage
-}
-
 type BaseState struct {
 	Type string
-	Data *json.RawMessage
 }
 
 type State struct {

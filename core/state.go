@@ -1,6 +1,11 @@
 package core
 
-func (t TaskState) Call() error {
+import (
+	"encoding/json"
+	"github.com/Sirupsen/logrus"
+)
 
+func (t *TaskState) Call(data *json.RawMessage) error {
+	logrus.Info("")
 	return nil
 }
