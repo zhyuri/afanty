@@ -8,7 +8,7 @@ LDFLAGS=-ldflags '-X "main.gitTag=${GIT_TAG}" -X "main.buildTime=${BUILD_TIME}"'
 
 build: clean pb
 	dep ensure
-	go build ${LDFLAGS} -o ${DIST}${BINARY} afanty.go
+	gcloud container builds submit -t asia.gcr.io/afanty-170802/afanty .
 
 pb:
 	$(MAKE) -C api
@@ -22,9 +22,8 @@ doc:
 run:
 	${DIST}${BINARY}
 
-pack: build
-	tar -cf ${BINARY}.tar dist
-	rm -rf dist
+pull:
+	gcloud docker -- pull asia.gcr.io/afanty-170802/afanty
 
 clean:
 	$(MAKE) clean -C api
