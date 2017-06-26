@@ -11,19 +11,19 @@
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto","ptypes/any"]
-  revision = "1fb8fd32a09087bcd727225167edd31e1b9ceb24"
+  revision = "6a1fa9404c0aebf36c879bc50152edcc953910d2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "057a25b06247e0c51ba15d8ae475feb2fcb72164"
+  revision = "5f8847ae0d0e90b6a9dc8148e7ad616874625171"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a"
+  revision = "c23410a886927bab8ca5e80b08af6a56faeb330d"
 
 [[projects]]
   branch = "master"
@@ -40,8 +40,8 @@
 [[projects]]
   name = "google.golang.org/grpc"
   packages = [".","codes","credentials","grpclb/grpc_lb_v1","grpclog","internal","keepalive","metadata","naming","peer","stats","status","tap","transport"]
-  revision = "42c095b6c9bdd80d4435b064508c398afdb0ec99"
-  version = "v1.4.1"
+  revision = "b15215fb911b24a5d61d57feec4233d610530464"
+  version = "v1.4.2"
 
 [solve-meta]
   analyzer-name = "dep"
