@@ -6,13 +6,18 @@ import (
 )
 
 const (
-	NamePassState     = "Pass"
-	NameTaskState     = "Task"
-	NameChoiceState   = "Choice"
-	NameWaitState     = "Wait"
-	NameParallelState = "Parallel"
-	NameSucceedState  = "Succeed"
-	NameFailState     = "Fail"
+	Name_PassState     = "Pass"
+	Name_TaskState     = "Task"
+	Name_ChoiceState   = "Choice"
+	Name_WaitState     = "Wait"
+	Name_ParallelState = "Parallel"
+	Name_SucceedState  = "Succeed"
+	Name_FailState     = "Fail"
+
+	Errors_All         = "States.ALL"
+	Errors_Timeout     = "States.Timeout"
+	Errors_Failed      = "States.TaskFailed"
+	Errors_Permissions = "States.Permissions"
 )
 
 var (
@@ -20,89 +25,91 @@ var (
 )
 
 func init() {
-	stateType[NamePassState] = reflect.TypeOf(PassState{})
-	stateType[NameTaskState] = reflect.TypeOf(TaskState{})
-	stateType[NameChoiceState] = reflect.TypeOf(ChoiceState{})
-	stateType[NameWaitState] = reflect.TypeOf(WaitState{})
-	stateType[NameParallelState] = reflect.TypeOf(ParallelState{})
-	stateType[NameSucceedState] = reflect.TypeOf(SucceedState{})
-	stateType[NameFailState] = reflect.TypeOf(FailState{})
+	stateType[Name_PassState] = reflect.TypeOf(PassState{})
+	stateType[Name_TaskState] = reflect.TypeOf(TaskState{})
+	stateType[Name_ChoiceState] = reflect.TypeOf(ChoiceState{})
+	stateType[Name_WaitState] = reflect.TypeOf(WaitState{})
+	stateType[Name_ParallelState] = reflect.TypeOf(ParallelState{})
+	stateType[Name_SucceedState] = reflect.TypeOf(SucceedState{})
+	stateType[Name_FailState] = reflect.TypeOf(FailState{})
 }
 
-type BaseState struct {
-	Type string
-}
+type (
+	BaseState struct {
+		Type string
+	}
 
-type State struct {
-	BaseState
-	Next       string
-	End        bool
-	Comment    string
-	InputPath  string
-	OutputPath string
-}
+	State struct {
+		BaseState
+		Next       string
+		End        bool
+		Comment    string
+		InputPath  string
+		OutputPath string
+	}
 
-type PassState struct {
-	State
-	Result     *json.RawMessage
-	ResultPath string
-}
+	PassState struct {
+		State
+		Result     *json.RawMessage
+		ResultPath string
+	}
 
-type TaskState struct {
-	State
-	Resource         string
-	ResultPath       string
-	Retry            []*Retry
-	Catch            []*Catcher
-	TimeoutSeconds   int32
-	HeartbeatSeconds int32
-}
+	TaskState struct {
+		State
+		Resource         string
+		ResultPath       string
+		Retry            []*Retry
+		Catch            []*Catcher
+		TimeoutSeconds   int32
+		HeartbeatSeconds int32
+	}
 
-type ChoiceRule struct {
-	Variable string
-	Type     string
-	// String, number, boolean, Timestamp or non-empty Array of ChoiceRule
-	// which means ChoiceRule can be nested
-	Target interface{}
-	Next   string
-}
+	ChoiceRule struct {
+		Variable string
+		Type     string
+		// String, number, boolean, Timestamp or non-empty Array of ChoiceRule
+		// which means ChoiceRule can be nested
+		Target interface{}
+		Next   string
+	}
 
-type ChoiceState struct {
-	// Choice states do not support the End field
-	State
-	Choices []*ChoiceRule
-	Default string
-}
+	ChoiceState struct {
+		// Choice states do not support the End field
+		State
+		Choices []*ChoiceRule
+		Default string
+	}
 
-type WaitState struct {
-	State
-	Seconds       int32
-	Timestamp     string
-	SecondsPath   string
-	TimestampPath string
-}
+	WaitState struct {
+		State
+		Seconds       int32
+		Timestamp     string
+		SecondsPath   string
+		TimestampPath string
+	}
 
-type Branches struct {
-	StartAt string
-	States  map[string]*json.RawMessage
-}
+	Branches struct {
+		StartAt string
+		States  map[string]*json.RawMessage
+	}
 
-type ParallelState struct {
-	State
-	Branches   []*Branches
-	ResultPath string
-	Retry      []*Retry
-	Catch      []*Catcher
-}
+	ParallelState struct {
+		State
+		Branches   []*Branches
+		ResultPath string
+		Retry      []*Retry
+		Catch      []*Catcher
+	}
 
-type SucceedState struct {
-	BaseState
-	Comment string
-}
+	SucceedState struct {
+		BaseState
+		Comment string
+	}
 
-type FailState struct {
-	BaseState
-	Comment string
-	Cause   string
-	Error   string
-}
+	FailState struct {
+		BaseState
+		Comment string
+		Cause   string
+		Error   string
+	}
+)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -36,8 +37,10 @@ func NewStateMachineFromJSON(j []byte) (StateMachine, error) {
 }
 
 func (sm *StateMachine) Execute(data *json.RawMessage) error {
-	logrus.WithField("name", sm.Comment).Infoln("execute sm start")
-	defer logrus.WithField("name", sm.Comment).Infoln("execute sm end")
+	start := time.Now()
+	logEntry := logrus.WithField("name", sm.Comment)
+	logEntry.Infoln("execute sm start")
+	defer logEntry.Infoln("cost", strconv.FormatFloat(time.Since(start).Seconds(), 'f', 3, 64))
 
 	ctx, done := context.WithTimeout(context.Background(),
 		time.Second*time.Duration(sm.TimeoutSeconds))
@@ -68,7 +71,7 @@ func (sm *StateMachine) Execute(data *json.RawMessage) error {
 
 	select {
 	case e := <-errChan:
-		logrus.Errorln("StateMachine execute State error,", e)
+		logrus.Warningln("StateMachine execute State error,", e)
 		return e
 	case <-ctx.Done():
 		if e := ctx.Err(); e != context.Canceled {
@@ -89,9 +92,11 @@ func ExecuteStateJSON(stateJSON json.RawMessage, data *json.RawMessage) (State, 
 	}
 	switch s := state.(type) {
 	case *TaskState:
-		logrus.Infof("%#v", s)
-		s.Call(data)
-		return s.State, nil
+		state, err := s.Call(&[]byte(data))
+		if err != nil {
+			// Catch
+		}
+		return state, nil
 	case *SucceedState:
 		logrus.Infof("%#v", s)
 		return State{}, nil

@@ -7,8 +7,10 @@ BUILD_TIME=$(shell date +'%Y-%m-%d %H:%M')
 LDFLAGS=-ldflags '-X "main.gitTag=${GIT_TAG}" -X "main.buildTime=${BUILD_TIME}"'
 
 build: clean pb
+	go build ${LDFLAGS} -o ${DIST}${BINARY} afanty.go
+
+install:
 	dep ensure
-	gcloud container builds submit -t asia.gcr.io/afanty-170802/afanty .
 
 pb:
 	$(MAKE) -C api
@@ -21,6 +23,9 @@ doc:
 
 run:
 	${DIST}${BINARY}
+
+cloudbuild: clean pb
+	gcloud container builds submit -t asia.gcr.io/afanty-170802/afanty .
 
 pull:
 	gcloud docker -- pull asia.gcr.io/afanty-170802/afanty
