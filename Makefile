@@ -16,7 +16,7 @@ pb:
 	$(MAKE) -C api
 
 test:
-	go test `go list ./... | grep -v /vendor/ | grep -v /api`
+	ginkgo -r --randomizeAllSpecs --randomizeSuites --failOnPending --cover --trace --race --compilers=2
 
 doc:
 	godoc -http=:6060 -index

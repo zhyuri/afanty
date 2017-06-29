@@ -1,94 +1,47 @@
-package core
+package core_test
 
 import (
-	"reflect"
-	"testing"
+	. "github.com/zhyuri/afanty/core"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-var (
-	passState = []byte(`{
-  "Type": "Pass",
-  "ResultPath": "$.coords",
-  "Next": "End"
-}`)
-)
+var _ = Describe("Parser", func() {
+	var (
+		passStateJSON = []byte(`{
+		  "Type": "Pass",
+		  "ResultPath": "$.coords",
+		  "Next": "End"
+		}`)
+		stateInter interface{}
+		passState  *PassState
+		err        error
+		ok         bool
+	)
 
-func TestBuildState(t *testing.T) {
-	type args struct {
-		data []byte
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    interface{}
-		wantErr bool
-	}{
-		{
-			name: "Build PassState from Json",
-			args: args{
-				data: passState,
-			},
-			want: &PassState{
-				State: State{
-					BaseState: BaseState{
-						Type: NamePassState,
-					},
-					Next: "End",
-				},
-				// cannot test Result field here, because it has different memory address
-				// and cannot pass the reflect.DeepEqual
-				ResultPath: "$.coords",
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := BuildState(tt.args.data)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("BuildState(%v) error = %v, wantErr %v", string(tt.args.data), err, tt.wantErr)
-				return
-			}
-			// Be ware you need to use the pointer type !
-			if _, ok := got.(*PassState); !ok {
-				t.Errorf("BuildState type not match, want PassState.")
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("BuildState(%v) = %v, want %v", string(tt.args.data), got, tt.want)
-			}
+	BeforeEach(func() {
+		stateInter, err = BuildState(passStateJSON)
+	})
+	Describe("Parse the json of state", func() {
+		Context("When json is correct", func() {
+			It("Should not be any error", func() {
+				Ω(err).ShouldNot(HaveOccurred())
+			})
 		})
-	}
-}
+		Context("When assert type", func() {
+			BeforeEach(func() {
+				passState, ok = stateInter.(*PassState)
+			})
+			It("Should have correct type", func() {
+				Ω(ok).Should(Equal(true))
+			})
+			It("Should have correct value", func() {
+				Ω(passState.Type).Should(Equal(Name_PassState))
+				Ω(passState.ResultPath).Should(Equal("$.coords"))
+				Ω(passState.Next).Should(Equal("End"))
+			})
+		})
 
-func TestParseStateType(t *testing.T) {
-	type args struct {
-		data []byte
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    reflect.Type
-		wantErr bool
-	}{
-		{
-			name: "PassState parse test",
-			args: args{
-				data: passState,
-			},
-			want:    reflect.TypeOf(PassState{}),
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseStateType(tt.args.data)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ParseStateType(%v) error = %v, wantErr %v", string(tt.args.data), err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ParseStateType(%v) = %v, want %v", string(tt.args.data), got, tt.want)
-			}
-		})
-	}
-}
+	})
+})

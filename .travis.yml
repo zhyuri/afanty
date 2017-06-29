@@ -5,7 +5,10 @@ go:
 env:
 - PATH=$PATH:$HOME/protobuf/bin GIMME_OS=linux GIMME_ARCH=amd64 ENV="dev"
 install:
+- go get -v github.com/onsi/ginkgo/ginkgo
+- go get -v github.com/onsi/gomega
 - dep ensure
+- export PATH=$PATH:$HOME/gopath/bin
 script: make test
 notifications:
   email:

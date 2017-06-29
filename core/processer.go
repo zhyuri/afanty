@@ -1,5 +1,8 @@
 package core
 
 func Process(data []byte, path string) ([]byte, error) {
-	return nil, nil
+	if len(path) <= 0 {
+		return data, nil
+	}
+	return data, nil
 }

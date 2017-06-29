@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"github.com/Sirupsen/logrus"
 	. "github.com/zhyuri/afanty/api"
 	"plugin"
@@ -24,51 +25,106 @@ func getPlugin(name string) (Run, error) {
 	return run, nil
 }
 
-func (t *TaskState) Call(data *[]byte) (State, error) {
-	logrus.Info("")
+func (t *TaskState) Call(data *[]byte) (State, *StateError) {
+	logEntry := logrus.WithField("name", t.Comment)
+	logEntry.Info("start execute")
 
 	run, err := getPlugin(t.Resource)
 	if err != nil {
-		logrus.Errorln("")
-		return State{}, err
+		logEntry.Errorln("")
+		return State{}, &StateError{Name: Errors_Failed, Err: err}
 	}
-	respChan := make(chan MOutput)
-	errChan := make(chan StateError)
+	type Result struct {
+		Resp     MOutput
+		StateErr StateError
+	}
+	resultChan := make(chan Result)
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*time.Duration(t.TimeoutSeconds))
 	go func() {
-		resp, stateErr := run(MInput{})
-		respChan <- resp
-		if stateErr.Err != nil {
-			errChan <- stateErr
+		resp, stateErr := run(MInput{Input: *data})
+		select {
+		case <-ctx.Done():
+			resultChan <- Result{
+				resp,
+				StateError{Name: Errors_Timeout, Err: ctx.Err()},
+			}
+			return
+		default:
+			resultChan <- Result{resp, stateErr}
 		}
 	}()
 
-	select {
-	case <-ctx.Done():
-		if e := ctx.Err(); e == context.DeadlineExceeded {
-			logrus.Warningln("taskstate execute timeout: ", t.Comment, e)
-			return t.State, e
-		} else if e != context.Canceled {
-			logrus.Errorln("taskstate execute error: ", t.Comment, e)
-			return t.State, e
-		}
-	case resp := <-respChan:
-		output, err := Process(resp.Output, "")
-		if err == nil {
+	for {
+		select {
+		case <-ctx.Done():
+			switch err := ctx.Err(); err {
+			case context.Canceled:
+				// handle timeout
+				logEntry.Warningln("taskstate execute timeout: ", err)
+				return t.State, &StateError{Name: Errors_Timeout, Err: err}
+			default:
+				// other unknown context error
+				logEntry.Errorln("taskstate execute error: ", err)
+				return t.State, &StateError{Name: Errors_Failed, Err: err}
+			}
+		case r := <-resultChan:
+			if r.StateErr.Err != nil {
+				// client defined error
+				return State{}, &r.StateErr
+			}
+			output, err := Process(r.Resp.Output, "")
+			if err != nil {
+				logEntry.Warnln("process output failed", err)
+				return State{}, &StateError{Name: Errors_ProcessFailed, Err: err}
+			}
 			data = &output
-		} else {
-			logrus.Warnln("")
+			return t.State, nil
 		}
 	}
-	return t.State, nil
+
 }
 
-func (t *TaskState) DoRetry(name string) error {
-
-	return nil
+type RetryContext struct {
+	StateErr  *StateError
+	Times     int32
+	StartTime time.Time
+	Interval  time.Duration
+	Fallback  bool
 }
 
-func (t *TaskState) DoCatch() error {
+func (t *TaskState) RetryWait(ctx *RetryContext) (*RetryContext, bool) {
+	for _, retry := range t.Retry {
+		if retry.MaxAttempts <= 0 {
+			continue
+		}
+		for _, errorEqual := range retry.ErrorEquals {
+			if errorEqual == ctx.StateErr.Name || errorEqual == Errors_All {
+				if ctx.Times >= retry.MaxAttempts {
+					return ctx, true
+				}
+				sleepTime := (retry.IntervalSeconds + float32(ctx.Times)*retry.BackoffRate) * float32(time.Second)
+				time.Sleep(time.Duration(sleepTime))
 
-	return nil
+				ctx.Times++
+				return ctx, false
+			}
+		}
+	}
+	return ctx, true
+}
+
+func (t *TaskState) CatchFail(err *StateError, data *[]byte) (State, error) {
+	for _, catch := range t.Catch {
+		for _, errorEqual := range catch.ErrorEquals {
+			if errorEqual == err.Name || errorEqual == Errors_All {
+				output, err := Process(*data, catch.ResultPath)
+				if err != nil {
+					return State{}, StateError{Name: Errors_ProcessFailed, Err: err}
+				}
+				data = &output
+				return State{Next: catch.Next}, nil
+			}
+		}
+	}
+	return State{}, errors.New("cannot find matched catcher for task: " + t.Comment + " err: " + err.Error())
 }

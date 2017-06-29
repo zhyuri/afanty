@@ -14,22 +14,34 @@
   revision = "6a1fa9404c0aebf36c879bc50152edcc953910d2"
 
 [[projects]]
+  name = "github.com/onsi/ginkgo"
+  packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
+  revision = "77a8c1e5c40d6bb6c5eb4dd4bdce9763564f6298"
+  version = "v1.3.1"
+
+[[projects]]
+  name = "github.com/onsi/gomega"
+  packages = [".","format","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
+  revision = "334b8f472b3af5d541c5642701c1e29e2126f486"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "5f8847ae0d0e90b6a9dc8148e7ad616874625171"
+  revision = "c81e7f25cb61200d8bf0ae971a0bac8cb638d5bc"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "c23410a886927bab8ca5e80b08af6a56faeb330d"
+  revision = "90796e5a05ce440b41c768bd9af257005e470461"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "4e9ab9ee170f2a39bd66c92b3e0a47ff47a4bc77"
+  revision = "6353ef0f924300eea566d3438817aa4d3374817e"
 
 [[projects]]
   branch = "master"
@@ -43,9 +55,15 @@
   revision = "b15215fb911b24a5d61d57feec4233d610530464"
   version = "v1.4.2"
 
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "23f02cc504e1721e1189642d89c77dc56ce0f04e7692a95abb4fe2d44030d7d2"
+  inputs-digest = "81da43c786d85c93b03ba10638e2add0844c8401e212e8a6d0b669d2780b7496"
   solver-name = "gps-cdcl"
   solver-version = 1

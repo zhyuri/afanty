@@ -14,10 +14,11 @@ const (
 	Name_SucceedState  = "Succeed"
 	Name_FailState     = "Fail"
 
-	Errors_All         = "States.ALL"
-	Errors_Timeout     = "States.Timeout"
-	Errors_Failed      = "States.TaskFailed"
-	Errors_Permissions = "States.Permissions"
+	Errors_All           = "States.ALL"
+	Errors_Timeout       = "States.Timeout"
+	Errors_Failed        = "States.TaskFailed"
+	Errors_Permissions   = "States.Permissions"
+	Errors_ProcessFailed = "States.ProcessFailed"
 )
 
 var (

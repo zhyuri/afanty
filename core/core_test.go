@@ -1,41 +1,82 @@
-package core
+package core_test
 
 import (
+	. "github.com/zhyuri/afanty/core"
+
 	"encoding/json"
-	"testing"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-var exampleStateMachineJSON = []byte(`{
-  "Comment": "An example that adds two numbers.",
-  "StartAt": "Add",
-  "Version": "1.0",
-  "TimeoutSeconds": 10,
-  "States":
-    {
-        "Add": {
-          "Type": "Task",
-          "Resource": "arn:aws:lambda:us-east-1:123456789012:function:Add",
-          "End": true
-        }
-    }
-}`)
+var _ = Describe("Core", func() {
 
-func TestNewStateMachineFromJSON(t *testing.T) {
-	got, err := NewStateMachineFromJSON(exampleStateMachineJSON)
-	if err != nil {
-		t.Errorf("NewStateMachineFromJSON return err, %#v", err)
-	}
-	if _, exist := got.States[got.StartAt]; !exist {
-		t.Errorf("can not find states on start, need %v, found %#v", got.StartAt, got.States)
-	}
-}
+	var (
+		exampleStateMachineJSON = []byte(`{
+		  "Comment": "An example that adds two numbers.",
+		  "StartAt": "Add",
+		  "Version": "1.0",
+		  "TimeoutSeconds": 10,
+		  "States":
+			{
+				"Add": {
+				  "Comment": "Test Task",
+				  "Type": "Task",
+				  "Resource": "arn:aws:lambda:us-east-1:123456789012:function:Add",
+				  "End": true
+				}
+			}
+		}`)
+		sm  StateMachine
+		err error
+	)
+	BeforeEach(func() {
+		sm, err = NewStateMachineFromJSON(exampleStateMachineJSON)
+	})
+	Describe("Init StateMachine", func() {
+		Context("When json parse successfully", func() {
+			It("Should be no error", func() {
+				Ω(err).ShouldNot(HaveOccurred())
+			})
+			It("Should parse json correctly", func() {
+				Ω(sm.StartAt).Should(Equal("Add"))
+				Ω(sm.States[sm.StartAt]).ShouldNot(BeNil())
+			})
+		})
 
-func TestExecute(t *testing.T) {
-	sm, err := NewStateMachineFromJSON(exampleStateMachineJSON)
-	if err != nil {
-		t.Errorf("NewStateMachineFromJSON return err, %#v", err)
-	}
-	if err = sm.Execute(&json.RawMessage{}); err != nil {
-		t.Errorf("Execute return err, %#v", err)
-	}
-}
+		Context("When json is wrong", func() {
+			BeforeEach(func() {
+				sm, err = NewStateMachineFromJSON(exampleStateMachineJSON[:2])
+			})
+			It("Should have an error", func() {
+				Ω(err).Should(HaveOccurred())
+			})
+			It("Should have default values", func() {
+				Ω(sm.StartAt).Should(Equal("InitState"))
+			})
+			It("Should have default timeout", func() {
+				Ω(sm.TimeoutSeconds).Should(Equal(int32(10)))
+			})
+		})
+
+	})
+
+	var (
+		exampleDataJSON = json.RawMessage{}
+		data            json.RawMessage
+	)
+	Describe("Execute StateMachine", func() {
+		BeforeEach(func() {
+			data = exampleDataJSON
+			err = sm.Execute(&data)
+		})
+		Context("", func() {
+			It("should be no error", func() {
+				Skip("No lib supported now")
+				Ω(err).Should(BeNil())
+				Ω(sm.StartAt).Should(Equal("Add"))
+				Ω(sm.States[sm.StartAt]).ShouldNot(BeNil())
+			})
+		})
+	})
+
+})

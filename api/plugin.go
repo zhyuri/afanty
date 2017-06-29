@@ -8,3 +8,7 @@ type (
 
 	Run func(MInput) (MOutput, StateError)
 )
+
+func (e StateError) Error() string {
+	return e.Name + ":" + e.Err.Error()
+}

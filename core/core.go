@@ -29,11 +29,7 @@ func NewStateMachineFromJSON(j []byte) (StateMachine, error) {
 		StartAt:        "InitState",
 	}
 	err := json.Unmarshal(j, &sm)
-	if err != nil {
-		return StateMachine{}, err
-	}
-
-	return sm, nil
+	return sm, err
 }
 
 func (sm *StateMachine) Execute(data *json.RawMessage) error {
@@ -49,8 +45,10 @@ func (sm *StateMachine) Execute(data *json.RawMessage) error {
 	go func() {
 		defer done()
 
-		var s State
-		var err error
+		var (
+			s   State
+			err error
+		)
 		name := sm.StartAt
 		for {
 			stateJSON, exist := sm.States[name]
@@ -62,20 +60,23 @@ func (sm *StateMachine) Execute(data *json.RawMessage) error {
 			if err != nil || s.End {
 				break
 			}
-			name = s.Next
+			select {
+			case <-ctx.Done():
+				return
+			}
 		}
-		if err != nil {
-			errChan <- err
-		}
+		errChan <- err
 	}()
 
 	select {
 	case e := <-errChan:
-		logrus.Warningln("StateMachine execute State error,", e)
+		if e != nil {
+			logrus.Warning("StateMachine execute State error, %v", e)
+		}
 		return e
 	case <-ctx.Done():
 		if e := ctx.Err(); e != context.Canceled {
-			logrus.Warningln("sm execute timeout: ", sm.Comment)
+			logrus.Warning("sm execute timeout: ", sm.Comment)
 		}
 	}
 
@@ -92,11 +93,20 @@ func ExecuteStateJSON(stateJSON json.RawMessage, data *json.RawMessage) (State, 
 	}
 	switch s := state.(type) {
 	case *TaskState:
-		state, err := s.Call(&[]byte(data))
-		if err != nil {
-			// Catch
+		retryContext := &RetryContext{}
+		fallback := false
+		for {
+			state, err := s.Call((*[]byte)(data))
+			if err == nil {
+				return state, nil
+			}
+			retryContext.StateErr = err
+			// client defined error
+			if retryContext, fallback = s.RetryWait(retryContext); fallback {
+				// catch
+				return s.CatchFail(err, (*[]byte)(data))
+			}
 		}
-		return state, nil
 	case *SucceedState:
 		logrus.Infof("%#v", s)
 		return State{}, nil
@@ -104,7 +114,7 @@ func ExecuteStateJSON(stateJSON json.RawMessage, data *json.RawMessage) (State, 
 		logrus.Infof("%#v", s)
 		return State{}, nil
 	default:
-		logrus.WithField("state", s).Error("the logic of state has not been implement")
+		logrus.WithField("state", s).Errorln("the logic of state has not been implement")
 		return State{}, errors.New("the invoke logic of state has not been implement")
 	}
 }
