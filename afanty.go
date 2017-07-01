@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
-	"github.com/Sirupsen/logrus"
-	"github.com/zhyuri/afanty/server"
-	"github.com/zhyuri/afanty/web"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/zhyuri/afanty/core"
+	"github.com/zhyuri/afanty/server"
+	"github.com/zhyuri/afanty/web"
 )
 
 var (
@@ -31,7 +33,9 @@ func main() {
 		rpcPort = ":10043"
 	}
 
-	go server.Run(rpcPort)
+	c := core.NewAfantyInstance("main")
+
+	go server.Run(c, rpcPort)
 	go web.Run(httpPort)
 
 	<-stopChan

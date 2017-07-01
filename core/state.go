@@ -3,10 +3,11 @@ package core
 import (
 	"context"
 	"errors"
-	"github.com/Sirupsen/logrus"
-	. "github.com/zhyuri/afanty/api"
 	"plugin"
 	"time"
+
+	"github.com/Sirupsen/logrus"
+	. "github.com/zhyuri/afanty/api"
 )
 
 func getPlugin(name string) (Run, error) {
@@ -94,11 +95,11 @@ type RetryContext struct {
 
 func (t *TaskState) RetryWait(ctx *RetryContext) (*RetryContext, bool) {
 	for _, retry := range t.Retry {
-		if retry.MaxAttempts <= 0 {
-			continue
-		}
 		for _, errorEqual := range retry.ErrorEquals {
 			if errorEqual == ctx.StateErr.Name || errorEqual == Errors_All {
+				if retry.MaxAttempts <= 0 {
+					continue
+				}
 				if ctx.Times >= retry.MaxAttempts {
 					return ctx, true
 				}
@@ -115,8 +116,8 @@ func (t *TaskState) RetryWait(ctx *RetryContext) (*RetryContext, bool) {
 
 func (t *TaskState) CatchFail(err *StateError, data *[]byte) (State, error) {
 	for _, catch := range t.Catch {
-		for _, errorEqual := range catch.ErrorEquals {
-			if errorEqual == err.Name || errorEqual == Errors_All {
+		for _, catchEqual := range catch.ErrorEquals {
+			if catchEqual == err.Name || catchEqual == Errors_All {
 				output, err := Process(*data, catch.ResultPath)
 				if err != nil {
 					return State{}, StateError{Name: Errors_ProcessFailed, Err: err}
