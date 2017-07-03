@@ -12,7 +12,6 @@ type AfantyCore struct {
 
 	eventBus chan interface{}
 	eventMap map[string][]EventHandler
-	stopChan chan bool
 	log      *logrus.Entry
 }
 
@@ -33,7 +32,6 @@ func NewAfantyInstance(name string, options ...Option) *AfantyCore {
 
 		eventBus: make(chan interface{}, 0),
 		eventMap: events,
-		stopChan: make(chan bool),
 		log:      entry,
 	}
 	for _, option := range options {
@@ -42,14 +40,15 @@ func NewAfantyInstance(name string, options ...Option) *AfantyCore {
 	return ac
 }
 
-func (c *AfantyCore) Shutdown() {
-	c.stopChan <- true
-}
+func (c *AfantyCore) Shutdown() {}
 
 func (c *AfantyCore) Pub(e Event) error {
 	handlers, ok := c.eventMap[e.Name]
 	if !ok {
 		return errors.New("event [" + e.Name + "] has not been registered")
+	}
+	if err := e.Ctx.Err(); err != nil {
+		return err
 	}
 	for _, handler := range handlers {
 		go handler(e)
