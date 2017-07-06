@@ -8,6 +8,8 @@ RPC call and combine the result into the response. After coding for a while, I r
 to avoid writing such 'idiot' code. Even maybe one day the AI can do such repeated work, because the 'business logic' is
 another kind of pattern for feature description.
 
-Nowadays people are talking about microservice architecture and infrastructure support it. With a RPC framework you can
-combine many sub-systems together to accomplish a greater feature. But there are still some code to write time after time,
-just for different feature. And you will find out most of your code is duplicate.
+Nowadays people are talking about microservice architecture and the infrastructure support it. With a RPC framework you can
+combine sub-systems together to accomplish a greater feature. But there are still some code to write time after time,
+just for different features. And you will find out most of your code is duplicate.
+
+
